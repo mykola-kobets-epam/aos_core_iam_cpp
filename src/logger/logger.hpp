@@ -22,6 +22,7 @@ public:
         eConfig,
         eDatabase,
         eVISIdentifier,
+        eIAM,
         eNumModules,
     };
 
@@ -32,6 +33,7 @@ public:
             "config",
             "database",
             "visidentifier",
+            "iam",
         };
 
         return aos::Array<const char* const>(sLogModuleTypeStrings, aos::ArraySize(sLogModuleTypeStrings));
