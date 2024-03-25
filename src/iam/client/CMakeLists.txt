@@ -28,9 +28,6 @@ target_link_libraries(
     PUBLIC aoscommon
            aoscoreapi-gen-objects
            aosiam
-           mbedcrypto
-           mbedtls
-           mbedx509
            utils
     PRIVATE iam_common logger
 )
