@@ -67,6 +67,19 @@ static void ConvertToProto(const Array<StaticString<cSubjectIDLen>>& src, iamana
     }
 }
 
+static const std::string CorrectAddress(const std::string& addr)
+{
+    if (addr.empty()) {
+        throw AosException("bad address");
+    }
+
+    if (addr[0] == ':') {
+        return "0.0.0.0" + addr;
+    }
+
+    return addr;
+}
+
 /***********************************************************************************************************************
  * Public
  **********************************************************************************************************************/
@@ -744,7 +757,7 @@ void IAMServer::CreatePublicServer(const std::string& addr, const std::shared_pt
 {
     grpc::ServerBuilder builder;
 
-    builder.AddListeningPort(addr, credentials);
+    builder.AddListeningPort(CorrectAddress(addr), credentials);
 
     RegisterPublicServices(builder);
 
@@ -771,7 +784,7 @@ void IAMServer::CreateProtectedServer(
 {
     grpc::ServerBuilder builder;
 
-    builder.AddListeningPort(addr, credentials);
+    builder.AddListeningPort(CorrectAddress(addr), credentials);
 
     RegisterPublicServices(builder);
     RegisterProtectedServices(builder, provisionMode);
