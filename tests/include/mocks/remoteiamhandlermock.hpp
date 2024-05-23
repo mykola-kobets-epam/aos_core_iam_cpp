@@ -37,6 +37,7 @@ public:
         (override));
 
     MOCK_METHOD(aos::Error, EncryptDisk, (const aos::String& nodeID, const aos::String& password), (override));
+    MOCK_METHOD(aos::Error, StartProvisioning, (const aos::String& nodeID, const aos::String& password), (override));
     MOCK_METHOD(aos::Error, FinishProvisioning, (const aos::String& nodeID), (override));
 };
 

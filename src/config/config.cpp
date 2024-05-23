@@ -183,6 +183,9 @@ aos::RetWithError<Config> ParseConfig(const std::string& filename)
         config.mWorkingDir               = object.GetValue<std::string>("WorkingDir");
         config.mEnablePermissionsHandler = object.GetValue<bool>("EnablePermissionsHandler");
 
+        config.mStartProvisioningCmdArgs = GetArrayValue<std::string>(object, "StartProvisioningCmdArgs",
+            [](const Poco::Dynamic::Var& value) { return value.convert<std::string>(); });
+
         config.mFinishProvisioningCmdArgs = GetArrayValue<std::string>(object, "FinishProvisioningCmdArgs",
             [](const Poco::Dynamic::Var& value) { return value.convert<std::string>(); });
 

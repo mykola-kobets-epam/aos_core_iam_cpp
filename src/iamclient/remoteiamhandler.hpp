@@ -94,6 +94,15 @@ public:
     virtual aos::Error EncryptDisk(const aos::String& nodeID, const aos::String& password) = 0;
 
     /**
+     * Starts provisioning.
+     *
+     * @param nodeID node identifier.
+     * @param password password.
+     * @returns aos::Error.
+     */
+    virtual aos::Error StartProvisioning(const aos::String& nodeID, const aos::String& password) = 0;
+
+    /**
      * Finishes provisioning.
      *
      * @param nodeID node identifier.

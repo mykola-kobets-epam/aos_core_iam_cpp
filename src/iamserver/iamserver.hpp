@@ -95,6 +95,8 @@ private:
         google::protobuf::Empty* response) override;
     grpc::Status FinishProvisioning(grpc::ServerContext* context, const google::protobuf::Empty* request,
         google::protobuf::Empty* response) override;
+    grpc::Status StartProvisioning(grpc::ServerContext* context, const iamanager::v4::StartProvisioningRequest* request,
+        iamanager::v4::StartProvisioningResponse* response) override;
 
     // IAMCertificateService interface
     grpc::Status CreateKey(grpc::ServerContext* context, const iamanager::v4::CreateKeyRequest* request,
@@ -129,6 +131,7 @@ private:
 
     std::string              mNodeID;
     std::string              mNodeType;
+    std::vector<std::string> mStartProvisioningCmdArgs;
     std::vector<std::string> mFinishProvisioningCmdArgs;
     std::vector<std::string> mDiskEncryptCmdArgs;
 

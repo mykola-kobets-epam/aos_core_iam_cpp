@@ -123,6 +123,15 @@ public:
     aos::Error EncryptDisk(const aos::String& nodeID, const aos::String& password) override;
 
     /**
+     * Starts provisioning.
+     *
+     * @param nodeID node identifier.
+     * @param password password.
+     * @returns aos::Error.
+     */
+    aos::Error StartProvisioning(const aos::String& nodeID, const aos::String& password) override;
+
+    /**
      * Finishes provisioning.
      *
      * @param nodeID node identifier.

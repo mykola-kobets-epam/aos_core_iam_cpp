@@ -29,6 +29,6 @@ add_library(${TARGET} STATIC ${SOURCES})
 
 target_link_libraries(
     ${TARGET}
-    PUBLIC aoscommon Poco::Foundation gRPC::grpc++
+    PUBLIC aoscommon Poco::Foundation gRPC::grpc++ aoscoreapi-gen-objects
     PRIVATE Poco::JSON
 )

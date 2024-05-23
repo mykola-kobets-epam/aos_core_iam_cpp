@@ -982,3 +982,34 @@ TEST_F(IAMServerTest, FinishProvisioningCmdFails)
     err = client.FinishProvisioning("node0");
     ASSERT_TRUE(err.Is(aos::ErrorEnum::eFailed)) << err.Message();
 }
+
+TEST_F(IAMServerTest, StartProvisioningSuccess)
+{
+    mServerConfig.mStartProvisioningCmdArgs = {"true"};
+
+    auto err = mServer.Init(mServerConfig, mCertHandler, &mIdentHandler, &mPermHandler, mRemoteIAMHandler.get(),
+        mCertLoader, mCryptoProvider, cProvisioningModeOn);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+
+    IAMClient client;
+    ASSERT_TRUE(client.Init(mClientConfig, mCertHandler, mCertLoader, mCryptoProvider, cProvisioningModeOn).IsNone());
+
+    err = client.StartProvisioning("node0", cPIN);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+}
+
+TEST_F(IAMServerTest, StartProvisioningFailed)
+{
+    mServerConfig.mStartProvisioningCmdArgs = {"false"};
+
+    auto err = mServer.Init(mServerConfig, mCertHandler, &mIdentHandler, &mPermHandler, mRemoteIAMHandler.get(),
+        mCertLoader, mCryptoProvider, cProvisioningModeOn);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+
+    IAMClient client;
+    ASSERT_TRUE(client.Init(mClientConfig, mCertHandler, mCertLoader, mCryptoProvider, cProvisioningModeOn).IsNone());
+
+    err = client.StartProvisioning("node0", cPIN);
+    ASSERT_TRUE(err.Is(aos::ErrorEnum::eFailed)) << err.Message();
+}
+

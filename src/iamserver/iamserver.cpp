@@ -108,6 +108,7 @@ aos::Error IAMServer::Init(const Config& config, certhandler::CertHandlerItf& ce
     mRemoteHandler             = remoteHandler;
     mNodeID                    = config.mNodeID;
     mNodeType                  = config.mNodeType;
+    mStartProvisioningCmdArgs  = config.mStartProvisioningCmdArgs;
     mFinishProvisioningCmdArgs = config.mFinishProvisioningCmdArgs;
     mDiskEncryptCmdArgs        = config.mDiskEncryptionCmdArgs;
 
@@ -497,6 +498,47 @@ grpc::Status IAMServer::EncryptDisk(
         LOG_ERR() << "Encrypt disk error: " << AOS_ERROR_WRAP(err);
 
         return grpc::Status(grpc::StatusCode::INTERNAL, "Encrypt disk error");
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status IAMServer::StartProvisioning(grpc::ServerContext* context,
+    const iamanager::v4::StartProvisioningRequest* request, iamanager::v4::StartProvisioningResponse* response)
+{
+    (void)context;
+
+    LOG_DBG() << "Process start provisioning request";
+
+    Error err = ErrorEnum::eNone;
+
+    if (mRemoteHandler) {
+        for (const auto& node : mRemoteHandler->GetRemoteNodes()) {
+            auto nodeErr = mRemoteHandler->StartProvisioning(node, request->password().c_str());
+            if (!nodeErr.IsNone() && err.IsNone()) {
+                err = nodeErr;
+            }
+        }
+    }
+
+    if (!mStartProvisioningCmdArgs.empty()) {
+        std::string                    output;
+        const std::vector<std::string> args {mStartProvisioningCmdArgs.begin() + 1, mStartProvisioningCmdArgs.end()};
+
+        auto execErr = ExecProcess(mStartProvisioningCmdArgs[0], args, output);
+        if (!execErr.IsNone() && err.IsNone()) {
+            err = execErr;
+
+            LOG_ERR() << "Exec error: message = " << output.c_str() << ", err = " << AOS_ERROR_WRAP(err);
+        }
+    }
+
+    *response->mutable_error_info() = ConvertToProto(err);
+
+    if (!err.IsNone()) {
+        LOG_ERR() << "Start provisioning error: " << AOS_ERROR_WRAP(err);
+
+        return grpc::Status(grpc::StatusCode::INTERNAL, "Start provisioning error");
     }
 
     return grpc::Status::OK;

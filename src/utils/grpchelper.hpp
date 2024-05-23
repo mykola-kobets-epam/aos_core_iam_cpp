@@ -15,6 +15,8 @@
 #include <aos/common/cryptoutils.hpp>
 #include <aos/iam/certhandler.hpp>
 
+#include <iamanager.grpc.pb.h>
+
 std::shared_ptr<grpc::ServerCredentials> GetMTLSServerCredentials(const aos::iam::certhandler::CertInfo& certInfo,
     const aos::String& rootCertPath, aos::cryptoutils::CertLoader& certLoader,
     aos::crypto::x509::ProviderItf& cryptoProvider);
@@ -25,5 +27,8 @@ std::shared_ptr<grpc::ServerCredentials> GetTLSServerCredentials(const aos::iam:
 std::shared_ptr<grpc::ChannelCredentials> GetTLSChannelCredentials(const aos::iam::certhandler::CertInfo& certInfo,
     const aos::String& rootCertPath, aos::cryptoutils::CertLoaderItf& certLoader,
     aos::crypto::x509::ProviderItf& cryptoProvider);
+
+iamanager::v4::ErrorInfo ConvertToProto(const aos::Error& err);
+aos::Error               ConvertFromProto(const iamanager::v4::ErrorInfo& err);
 
 #endif

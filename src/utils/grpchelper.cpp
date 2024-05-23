@@ -190,3 +190,27 @@ std::shared_ptr<grpc::ChannelCredentials> GetTLSChannelCredentials(const aos::ia
 
     return grpc::experimental::TlsCredentials(options);
 }
+
+iamanager::v4::ErrorInfo ConvertToProto(const aos::Error& err)
+{
+    iamanager::v4::ErrorInfo result;
+
+    result.set_message(err.Message());
+    result.set_aos_code(static_cast<int>(err.Value()));
+    result.set_exit_code(err.Errno());
+
+    return result;
+}
+
+aos::Error ConvertFromProto(const iamanager::v4::ErrorInfo& err)
+{
+    aos::Error result;
+
+    if (err.exit_code() != 0) {
+        result = aos::Error(err.exit_code());
+    } else {
+        result = aos::Error(static_cast<aos::ErrorEnum>(err.aos_code()));
+    }
+
+    return result;
+}

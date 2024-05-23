@@ -224,6 +224,32 @@ aos::Error IAMClient::EncryptDisk(const aos::String& nodeID, const aos::String& 
     return aos::ErrorEnum::eNone;
 }
 
+aos::Error IAMClient::StartProvisioning(const aos::String& nodeID, const aos::String& password)
+{
+    auto stub = CreateIAMProvisioningServiceStub(nodeID.CStr());
+    if (!stub) {
+        return AOS_ERROR_WRAP(aos::ErrorEnum::eFailed);
+    }
+
+    iamanager::v4::StartProvisioningRequest request;
+
+    request.set_node_id(nodeID.CStr());
+    request.set_password(password.CStr());
+
+    iamanager::v4::StartProvisioningResponse response;
+
+    auto ctx = GetClientContext(nodeID.CStr(), cDefaultRequestTimeout);
+
+    if (const auto status = stub->StartProvisioning(ctx.get(), request, &response); !status.ok()) {
+        LOG_ERR() << "Start provisioning failed: code = " << status.error_code()
+                  << ", message = " << status.error_message().c_str();
+
+        return AOS_ERROR_WRAP(aos::ErrorEnum::eFailed);
+    }
+
+    return ConvertFromProto(response.error_info());
+}
+
 aos::Error IAMClient::FinishProvisioning(const aos::String& nodeID)
 {
     auto stub = CreateIAMProvisioningServiceStub(nodeID.CStr());

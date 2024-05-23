@@ -90,6 +90,7 @@ struct Config {
     std::string               mCertStorage;
     std::string               mWorkingDir;
     std::vector<ModuleConfig> mCertModules;
+    std::vector<std::string>  mStartProvisioningCmdArgs;
     std::vector<std::string>  mFinishProvisioningCmdArgs;
     std::vector<std::string>  mDiskEncryptionCmdArgs;
     bool                      mEnablePermissionsHandler;
