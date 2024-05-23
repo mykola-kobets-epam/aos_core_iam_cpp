@@ -110,6 +110,7 @@ aos::Error IAMServer::Init(const Config& config, certhandler::CertHandlerItf& ce
     mNodeType                  = config.mNodeType;
     mStartProvisioningCmdArgs  = config.mStartProvisioningCmdArgs;
     mFinishProvisioningCmdArgs = config.mFinishProvisioningCmdArgs;
+    mDeprovisionCmdArgs        = config.mDeprovisionCmdArgs;
     mDiskEncryptCmdArgs        = config.mDiskEncryptionCmdArgs;
 
     try {
@@ -580,6 +581,47 @@ grpc::Status IAMServer::FinishProvisioning(
         LOG_ERR() << "Finish provisioning error: " << AOS_ERROR_WRAP(err);
 
         return grpc::Status(grpc::StatusCode::INTERNAL, "Finish provisioning error");
+    }
+
+    return grpc::Status::OK;
+}
+
+grpc::Status IAMServer::Deprovision(grpc::ServerContext* context, const iamanager::v4::DeprovisionRequest* request,
+    iamanager::v4::DeprovisionResponse* response)
+{
+    (void)context;
+
+    LOG_DBG() << "Process deprovisioning request";
+
+    Error err = ErrorEnum::eNone;
+
+    if (mRemoteHandler) {
+        for (const auto& node : mRemoteHandler->GetRemoteNodes()) {
+            auto nodeErr = mRemoteHandler->Deprovision(node, request->password().c_str());
+            if (!nodeErr.IsNone() && err.IsNone()) {
+                err = nodeErr;
+            }
+        }
+    }
+
+    if (!mDeprovisionCmdArgs.empty()) {
+        std::string                    output;
+        const std::vector<std::string> args {mDeprovisionCmdArgs.begin() + 1, mDeprovisionCmdArgs.end()};
+
+        auto execErr = ExecProcess(mDeprovisionCmdArgs[0], args, output);
+        if (!execErr.IsNone() && err.IsNone()) {
+            err = execErr;
+
+            LOG_ERR() << "Exec error: message = " << output.c_str() << ", err = " << AOS_ERROR_WRAP(err);
+        }
+    }
+
+    *response->mutable_error_info() = ConvertToProto(err);
+
+    if (!err.IsNone()) {
+        LOG_ERR() << "Deprovisioning error: " << AOS_ERROR_WRAP(err);
+
+        return grpc::Status(grpc::StatusCode::INTERNAL, "Deprovisioning error");
     }
 
     return grpc::Status::OK;

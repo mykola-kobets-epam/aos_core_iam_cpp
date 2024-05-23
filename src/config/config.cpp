@@ -189,6 +189,9 @@ aos::RetWithError<Config> ParseConfig(const std::string& filename)
         config.mFinishProvisioningCmdArgs = GetArrayValue<std::string>(object, "FinishProvisioningCmdArgs",
             [](const Poco::Dynamic::Var& value) { return value.convert<std::string>(); });
 
+        config.mDeprovisionCmdArgs = GetArrayValue<std::string>(
+            object, "DeprovisionCmdArgs", [](const Poco::Dynamic::Var& value) { return value.convert<std::string>(); });
+
         config.mDiskEncryptionCmdArgs = GetArrayValue<std::string>(object, "DiskEncryptionCmdArgs",
             [](const Poco::Dynamic::Var& value) { return value.convert<std::string>(); });
 

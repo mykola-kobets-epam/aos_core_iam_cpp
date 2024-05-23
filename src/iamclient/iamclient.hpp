@@ -139,6 +139,15 @@ public:
      */
     aos::Error FinishProvisioning(const aos::String& nodeID) override;
 
+    /**
+     * Handles deprovisioning request.
+     *
+     * @param nodeID node identifier.
+     * @param password password.
+     * @returns aos::Error.
+     */
+    aos::Error Deprovision(const aos::String& nodeID, const aos::String& password) override;
+
 protected:
     virtual CertificateServiceStubPtr  CreateIAMCertificateServiceStub(const std::string& nodeId);
     virtual ProvisioningServiceStubPtr CreateIAMProvisioningServiceStub(const std::string& nodeId);

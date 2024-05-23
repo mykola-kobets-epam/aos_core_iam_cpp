@@ -111,6 +111,15 @@ public:
     virtual aos::Error FinishProvisioning(const aos::String& nodeID) = 0;
 
     /**
+     * Handles deprovisioning request.
+     *
+     * @param nodeID node identifier.
+     * @param password password.
+     * @returns aos::Error.
+     */
+    virtual aos::Error Deprovision(const aos::String& nodeID, const aos::String& password) = 0;
+
+    /**
      * Destroys object instance
      */
     virtual ~RemoteIAMHandlerItf() = default;

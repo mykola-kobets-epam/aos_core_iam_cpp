@@ -1013,3 +1013,32 @@ TEST_F(IAMServerTest, StartProvisioningFailed)
     ASSERT_TRUE(err.Is(aos::ErrorEnum::eFailed)) << err.Message();
 }
 
+TEST_F(IAMServerTest, DeprovisionSuccess)
+{
+    mServerConfig.mDeprovisionCmdArgs = {"true"};
+
+    auto err = mServer.Init(mServerConfig, mCertHandler, &mIdentHandler, &mPermHandler, mRemoteIAMHandler.get(),
+        mCertLoader, mCryptoProvider, cProvisioningModeOn);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+
+    IAMClient client;
+    ASSERT_TRUE(client.Init(mClientConfig, mCertHandler, mCertLoader, mCryptoProvider, cProvisioningModeOn).IsNone());
+
+    err = client.Deprovision("node0", cPIN);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+}
+
+TEST_F(IAMServerTest, DeprovisionFailed)
+{
+    mServerConfig.mDeprovisionCmdArgs = {"false"};
+
+    auto err = mServer.Init(mServerConfig, mCertHandler, &mIdentHandler, &mPermHandler, mRemoteIAMHandler.get(),
+        mCertLoader, mCryptoProvider, cProvisioningModeOn);
+    ASSERT_TRUE(err.IsNone()) << err.Message();
+
+    IAMClient client;
+    ASSERT_TRUE(client.Init(mClientConfig, mCertHandler, mCertLoader, mCryptoProvider, cProvisioningModeOn).IsNone());
+
+    err = client.Deprovision("node0", cPIN);
+    ASSERT_TRUE(err.Is(aos::ErrorEnum::eFailed)) << err.Message();
+}

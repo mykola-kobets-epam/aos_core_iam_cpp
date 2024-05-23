@@ -270,6 +270,32 @@ aos::Error IAMClient::FinishProvisioning(const aos::String& nodeID)
     return aos::ErrorEnum::eNone;
 }
 
+aos::Error IAMClient::Deprovision(const aos::String& nodeID, const aos::String& password)
+{
+    auto stub = CreateIAMProvisioningServiceStub(nodeID.CStr());
+    if (!stub) {
+        return AOS_ERROR_WRAP(aos::ErrorEnum::eFailed);
+    }
+
+    iamanager::v4::DeprovisionRequest request;
+
+    request.set_node_id(nodeID.CStr());
+    request.set_password(password.CStr());
+
+    iamanager::v4::DeprovisionResponse response;
+
+    auto ctx = GetClientContext(nodeID.CStr(), cDefaultRequestTimeout);
+
+    if (const auto status = stub->Deprovision(ctx.get(), request, &response); !status.ok()) {
+        LOG_ERR() << "Deprovisioning failed: code = " << status.error_code()
+                  << ", message = " << status.error_message().c_str();
+
+        return AOS_ERROR_WRAP(aos::ErrorEnum::eFailed);
+    }
+
+    return ConvertFromProto(response.error_info());
+}
+
 /***********************************************************************************************************************
  * Protected
  **********************************************************************************************************************/
