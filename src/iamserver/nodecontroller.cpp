@@ -89,7 +89,7 @@ aos::Error NodeStreamHandler::HandleStream()
         }
     }
 
-    LOG_DBG() << "Stop stream handler";
+    LOG_DBG() << "Stop stream handler" << err;
 
     return err;
 }

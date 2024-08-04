@@ -316,7 +316,11 @@ bool IAMClient::ProcessDeprovision(const iamanager::v5::DeprovisionRequest& requ
 
     utils::SetErrorInfo(err, response);
 
-    return mStream->Write(outgoingMsg) && SendNodeInfo();
+    bool res = mStream->Write(outgoingMsg) && SendNodeInfo();
+
+    LOG_DBG() << "Deprovision response: " << res;
+
+    return res;
 }
 
 bool IAMClient::ProcessPauseNode(const iamanager::v5::PauseNodeRequest& request)

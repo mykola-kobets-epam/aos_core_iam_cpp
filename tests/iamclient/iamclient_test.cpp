@@ -13,6 +13,7 @@
 #include <test/utils/log.hpp>
 
 #include "iamclient/iamclient.hpp"
+#include "iamserver/iamserver.hpp"
 
 #include "mocks/certhandlermock.hpp"
 #include "mocks/certloadermock.hpp"
@@ -20,6 +21,11 @@
 #include "mocks/nodeinfoprovidermock.hpp"
 #include "mocks/provisionmanagermock.hpp"
 #include "mocks/x509providermock.hpp"
+
+#include <Poco/Pipe.h>
+#include <Poco/PipeStream.h>
+#include <Poco/Process.h>
+#include <Poco/StreamCopier.h>
 
 using namespace testing;
 using namespace aos;
@@ -779,4 +785,56 @@ TEST_F(IAMClientTest, GetCertTypes)
 
     server->GetCertTypesRequest(nodeInfo.mNodeID.CStr());
     server->WaitResponse();
+}
+
+
+// static bool WaitPID(pid_t pid) {
+
+//     while(waitpid(pid, &status, 0))
+// }
+
+static aos::Error ExecProcess(const std::string& cmd, const std::vector<std::string>& args, std::string& output)
+{
+    Poco::Pipe            outPipe;
+    Poco::ProcessHandle   ph = Poco::Process::launch(cmd, args, nullptr, &outPipe, &outPipe);
+    Poco::PipeInputStream outStream(outPipe);
+
+    Poco::StreamCopier::copyToString(outStream, output);
+    Poco::trimRightInPlace(output);
+
+    if (int exitCode = ph.wait(); exitCode != 0) {
+        aos::StaticString<aos::cMaxErrorStrLen> errStr;
+
+        errStr.Format("Process failed: cmd=%s,code=%d", cmd.c_str(), exitCode);
+
+        return {aos::ErrorEnum::eFailed, errStr.CStr()};
+    }
+
+    return aos::ErrorEnum::eNone;
+}
+
+static aos::Error ExecCommand(const std::string& cmdName, const std::vector<std::string>& cmdArgs)
+{
+    if (!cmdArgs.empty()) {
+        std::string                    output;
+        const std::vector<std::string> args {cmdArgs.begin() + 1, cmdArgs.end()};
+
+        if (auto err = ExecProcess(cmdArgs[0], args, output); !err.IsNone()) {
+            LOG_ERR() << cmdName.c_str() << " exec failed: output = " << output.c_str() << ", err = " << err;
+
+            return err;
+        }
+    }
+
+    return aos::ErrorEnum::eNone;
+}
+
+TEST_F(IAMClientTest, ExecCommandTest)
+{
+    const auto cmd = "/bin/sh";
+    std::vector<std::string> args = {
+        "./test.sh"
+    };
+
+    ASSERT_TRUE(ExecCommand(cmd, args).IsNone());
 }
