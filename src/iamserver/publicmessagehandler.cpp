@@ -65,7 +65,7 @@ void PublicMessageHandler::RegisterServices(grpc::ServerBuilder& builder)
 
 void PublicMessageHandler::OnNodeInfoChange(const aos::NodeInfo& info)
 {
-    LOG_DBG() << "Process on node info changed: nodeID=" << info.mNodeID;
+    LOG_DBG() << "Process on node info changed: nodeID=" << info.mNodeID << ", status=" << info.mStatus.ToString();
 
     iamproto::NodeInfo nodeInfo;
     utils::ConvertToProto(info, nodeInfo);

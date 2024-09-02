@@ -89,8 +89,6 @@ aos::Error NodeStreamHandler::HandleStream()
         }
     }
 
-    LOG_DBG() << "Stop stream handler: err=" << err;
-
     return err;
 }
 
@@ -363,6 +361,7 @@ grpc::Status NodeController::HandleRegisterNodeStream(const std::vector<aos::Nod
     StoreHandler(handler);
 
     auto ret = handler->HandleStream();
+    LOG_DBG() << "Node disconnected: err=" << ret;
 
     handler->Close();
 
