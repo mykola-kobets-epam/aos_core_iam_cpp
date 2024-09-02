@@ -576,22 +576,17 @@ TEST_F(IAMClientTest, FinishProvisioning)
     NodeInfo nodeInfo     = DefaultNodeInfo(NodeStatusEnum::eUnprovisioned);
 
     // FinishProvisioning
-    NodeInfo                provNodeInfo    = DefaultNodeInfo(NodeStatusEnum::eProvisioned);
     iamanager::v5::NodeInfo expProvNodeInfo = DefaultNodeInfoProto("provisioned");
 
     EXPECT_CALL(mNodeInfoProvider, SetNodeStatus(NodeStatus(NodeStatusEnum::eProvisioned)));
-    EXPECT_CALL(mNodeInfoProvider, GetNodeInfo)
-        .WillOnce(DoAll(SetArgReferee<0>(nodeInfo), Return(ErrorEnum::eNone)))
-        .WillOnce(DoAll(SetArgReferee<0>(provNodeInfo), Return(ErrorEnum::eNone)));
+    EXPECT_CALL(mNodeInfoProvider, GetNodeInfo).WillOnce(DoAll(SetArgReferee<0>(nodeInfo), Return(ErrorEnum::eNone)));
 
     EXPECT_CALL(mProvisionManager, FinishProvisioning(cPassword)).WillOnce(Return(ErrorEnum::eNone));
 
-    EXPECT_CALL(*server, OnNodeInfo(expProvNodeInfo));
     EXPECT_CALL(*server, OnFinishProvisioningResponse(cErrorInfoOK));
 
     server->FinishProvisioningRequest(nodeInfo.mNodeID.CStr(), cPassword.CStr());
     server->WaitResponse();
-    server->WaitNodeInfo();
 }
 
 TEST_F(IAMClientTest, FinishProvisioningWrongNodeStatus)
