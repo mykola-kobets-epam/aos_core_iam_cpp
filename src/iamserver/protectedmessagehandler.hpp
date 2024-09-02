@@ -109,7 +109,8 @@ private:
 
     static constexpr auto       cDefaultTimeout      = std::chrono::minutes(1);
     static constexpr auto       cProvisioningTimeout = std::chrono::minutes(5);
-    static constexpr std::array cAllowedStatuses = {aos::NodeStatusEnum::eProvisioned, aos::NodeStatusEnum::ePaused};
+    static constexpr std::array cAllowedStatuses
+        = {aos::NodeStatusEnum::eProvisioned, aos::NodeStatusEnum::eUnprovisioned, aos::NodeStatusEnum::ePaused};
 };
 
 #endif
